@@ -7,7 +7,7 @@
 #' @return This function returns the input \code{phyloseq} object with a \code{lowest_rank} column in the \code{tax_table()}.
 #' If "Species" is present in the \code{tax_table()}, then this function returns <Genus_species>.
 #' If "Species" is NA, this function returns the next highest taxonomic level available.
-#' If more than 2 "Species" are present, this function returns <Genus_species1/species2+nspecies>.
+#' If more than 1 "Species" is present, this function returns <Genus_species1/species2+nspecies>.
 #'
 #' @examples
 #' ps <- add_lowest_rank(ps)
@@ -27,17 +27,18 @@ add_lowest_rank <- function(ps){
     }
   }
 
-  # for those with more than 2 "Species", only list first 2 and then denote how many more there are
-  multi_names <- x[which(sapply(regmatches(x[,"lowest_rank"],
+  if (sum(grepl("/", x[,"lowest_rank"])) > 0) {
+    # for those with more than 1 "Species", only list first 2 and then denote how many more there are
+    multi_names <- x[which(sapply(regmatches(x[,"lowest_rank"],
                                            gregexpr("/", x[,"lowest_rank"])), length) >1),"lowest_rank"]
 
-  n_names <- sapply(regmatches(multi_names, gregexpr("/", multi_names)), length) +1
+    n_names <- sapply(regmatches(multi_names, gregexpr("/", multi_names)), length) +1
 
-  multi_fixed <- paste0(sapply(strsplit(multi_names, "/"), `[`, 1), "/",
-                        sapply(strsplit(multi_names, "/"), `[`, 2), "+", n_names-2)
+    multi_fixed <- paste0(sapply(strsplit(multi_names, "/"), `[`, 1), "/",
+                          sapply(strsplit(multi_names, "/"), `[`, 2), "+", n_names-2)
 
-  x[which(x$lowest_rank %in% multi_names), "lowest_rank"] <- multi_fixed
-
+    x[which(x$lowest_rank %in% multi_names), "lowest_rank"] <- multi_fixed
+  }
   tax_table(ps) <- tax_table(as.matrix(x))
   return(ps)
 }

@@ -13,7 +13,7 @@ add_lowest_rank(ps)
 This function returns the input \code{phyloseq} object with a \code{lowest_rank} column in the \code{tax_table()}.
 If "Species" is present in the \code{tax_table()}, then this function returns <Genus_species>.
 If "Species" is NA, this function returns the next highest taxonomic level available.
-If more than 2 "Species" are present, this function returns <Genus_species1/species2+nspecies>.
+If more than 1 "Species" is present, this function returns <Genus_species1/species2+nspecies>.
 }
 \description{
 Adds a \code{lowest_rank} column to a taxonomy table in a phyloseq object.
