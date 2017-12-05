@@ -30,5 +30,6 @@ Imports:
 RoxygenNote: 6.0.1
 Suggests: knitr,
     rmarkdown,
-    testthat
+    testthat,
+    extrafont (>= 0.17)
 VignetteBuilder: knitr
