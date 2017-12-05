@@ -11,20 +11,31 @@ vignette: >
 
 ```{r setup, include = FALSE}
 
+# load packages
 require(phyloseq)
 require(reltools)
+require(ggplot2)
+
+# import data
 data(GlobalPatterns)
 
 ```
 
 Now we'll test one of our new fucntions, `add_lowest_rank()`
 
-```{r}
+```{r add_lowest_rank}
 
 ps <- add_lowest_rank(GlobalPatterns)
-colnames(tax_table(ps))
+print(colnames(tax_table(ps)))
 
 ```
 
 The function works as expected!
+
+```{r plot_ordered_bar, fig.width=8, fig.height=6}
+
+ps <- subset_samples(ps, SampleType %in% c("Feces", "Skin", "Tongue"))
+plot_ordered_bar(ps, x = "SampleType", y = "Abundance", fill = "Phylum", title = "Body Sites")
+
+```
 
