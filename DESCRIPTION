@@ -1,0 +1,31 @@
+Package: reltools
+Type: Package
+Title: Microbiome Amplicon Analysis and Visualization
+Version: 0.1.0
+Authors@R: person("Daniel", "Sprockett", email = "daniel.sprockett@stanford.edu", 
+        role = c("aut", "cre"))
+Description: This R package is a useful (though not totally coherent)
+    collection of functions used for analyzing and visualizing 16S rRNA
+    amplicon data. This package was created mainly for use in the Relman Lab
+    at Stanford University (relman.stanford.edu). In addition, this package
+    contains some functions that Dan has created for working with proteomics
+    M/S data, or simply tools for visualizing data more effectively. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports:
+    dplyr (>= 0.7.4),
+    ggplot2 (>= 2.2.1),
+    grid (>= 3.4.2),
+    gridExtra (>= 2.3),
+    phyloseq (>= 1.22.3),
+    Hmisc (>= 4.0.3),
+    minpack.lm (>= 1.2.1),
+    picante (>= 1.6.2),
+    reshape2 (>= 1.4.2),
+    stats4 (>= 3.4.2)
+RoxygenNote: 6.0.1
+Suggests: knitr,
+    rmarkdown,
+    testthat
+VignetteBuilder: knitr
