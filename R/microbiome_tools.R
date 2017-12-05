@@ -119,7 +119,7 @@ add_mdi<-function (ps){
 #' @return This function saves a FASTA-formatted text file from the input \code{phyloseq} object.
 #'
 #' @examples
-#' save_fasta(ps = ps)
+#' save_fasta(ps)
 #' save_fasta(ps = ps, file = "sequences.fasta", rank = "Genus")
 
 save_fasta <- function(ps = ps, file = NULL, rank = NULL){

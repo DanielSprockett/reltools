@@ -24,6 +24,6 @@ This function saves a FASTA-formatted text file from the input \code{phyloseq} o
 This function outputs a FASTA-formatted text file from a \code{phyloseq} object
 }
 \examples{
-save_fasta(ps = ps)
+save_fasta(ps)
 save_fasta(ps = ps, file = "sequences.fasta", rank = "Genus")
 }
