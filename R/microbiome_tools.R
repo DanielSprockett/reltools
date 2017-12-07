@@ -290,3 +290,227 @@ add_alpha_diversity<-function (ps){
 }
 
 
+
+
+#' @title Creates a data.frame of pairwise distances from a \code{phyloseq} object.
+#'
+#' @description This function outputs a data.frame of pairwise distances from
+#' each pair of samples contained in a \code{phyloseq} object.
+#'
+#' @param ps A \code{phyloseq} object that contains \code{\link[phyloseq]{sample_data}}.
+
+#' @param distances A vector of distances metrics you want included.
+#' Defaults to c("wuf", "uuf", "bray", "jsd", "jaccard").
+#' If the distance matrix is alrady present in the global enviroment,
+#' it will not calculate it again unless \code{force_distance_calculations} = TRUE.
+#' It will also check to make sure the sample_names(ps) are found in the exsiting
+#' distance matrix.
+#'
+#' @param force_distance_calculations (Logical)
+#' Would you like the function to overwrite any distance matrices in the global enviroment?
+#' Defaults to FALSE
+#'
+#' @param intragroup_only (Logical)
+#' If you would like to restrict comparisions to within a group,
+#' you can set this as TRUE (defaults to "Subject_ID") or you
+#' can specify which column in \code{\link[phyloseq]{sample_variables}}.
+#'
+#' @param variables A vector of \code{\link[phyloseq]{sample_variables}}
+#' that you would like compared in the output data.frame.
+#' For each factor, it will make a column for each sample, as well as a
+#' comparision column. For numerics, the comparison will be the absolute
+#' value of the difference of the numeric. For factors, the comparison
+#' will be if the two samples are the same or not.
+#'
+#'
+#' @return This function returns a data.frame with every pair of samples and their
+#' distance by several distance metrics. It can also output variables, as well as
+#' comparisions between those variables for easy subsetting.
+#'
+#' @examples
+#'
+#' df <- make_distance_df(ps = ps)
+#' df <- make_distance_df(ps = ps,
+#'                        distances = c("jsd", "jaccard"),
+#'                        intragroup_only = "Subject_ID",
+#'                        variables = c("Country", "Age_Months"))
+
+make_distance_df <- function(ps = ps,
+                             distances = c("wuf", "uuf", "bray", "jsd", "jaccard"),
+                             force_distance_calculations = FALSE,
+                             intragroup_only = FALSE,
+                             variables = NULL){
+
+  if ( is.null(ps) | class(ps)[1] != "phyloseq"){
+    message("phyloseq object not found or is not an object of class 'phyloseq'")
+  }
+
+  if(nsamples(ps) > 500){
+    message(paste0("This function calulates the distance between all pairs of samples.
+                   You've supplied a phyloseq object with ", nsamples(ps), " samples, meaning
+                   the data.frame output will contain ", ((nsamples(ps)^2)/2) - nsamples(ps), " rows.
+                   This could take a while." ))
+  }
+
+
+  if (force_distance_calculations == TRUE){
+    rm(wuf_mat, uuf_mat, bray_mat, jsd_mat, jaccard_mat)
+  }
+
+
+  if ( "wuf" %in% distances){
+    if( exists("wuf_mat") ){
+      message("Weighted Unifrac Distance matrix found.")
+      if ( !identical(colnames(wuf_mat), sample_names(ps)) ){
+        message("Weighted Unifrac Distance matrix does not contain the
+                same sample names as this phyloseq object.
+                Recalculating the matrix.")
+        wuf_mat <- as.matrix(phyloseq::distance(ps, method = "wunifrac"))
+        assign("wuf_mat", wuf_mat, envir = .GlobalEnv)
+      }
+    } else {
+      message("Weighted Unifrac Distance matrix not found. Calculating it now.")
+      wuf_mat <- as.matrix(phyloseq::distance(ps, method = "wunifrac"))
+      assign("wuf_mat", wuf_mat, envir = .GlobalEnv)
+    }
+  }
+
+
+  if ( "uuf" %in% distances){
+    if( exists("uuf_mat") ){
+      message("Unweighted Unifrac Distance matrix found.")
+      if ( !identical(colnames(uuf_mat), sample_names(ps)) ){
+        message("Unweighted Unifrac Distance matrix does not contain the
+                same sample names as this phyloseq object.
+                Recalculating the matrix.")
+        uuf_mat <- as.matrix(phyloseq::distance(ps, method = "uunifrac"))
+        assign("uuf_mat", uuf_mat, envir = .GlobalEnv)
+      }
+    } else {
+      message("Unweighted Unifrac Distance matrix not found. Calculating it now.")
+      uuf_mat <- as.matrix(phyloseq::distance(ps, method = "uunifrac"))
+      assign("uuf_mat", uuf_mat, envir = .GlobalEnv)
+    }
+  }
+
+
+  if ( "bray" %in% distances){
+    if( exists("bray_mat") ){
+      message("Bray–Curtis dissimilarity matrix found.")
+      if ( !identical(colnames(bray_mat), sample_names(ps)) ){
+        message("Bray–Curtis dissimilarity matrix does not contain the
+                same sample names as this phyloseq object.
+                Recalculating the matrix.")
+        bray_mat <- as.matrix(phyloseq::distance(ps, method = "bray"))
+        assign("bray_mat", bray_mat, envir = .GlobalEnv)
+      }
+    } else {
+      message("Bray–Curtis dissimilarity matrix not found. Calculating it now.")
+      bray_mat <- as.matrix(phyloseq::distance(ps, method = "bray"))
+      assign("bray_mat", bray_mat, envir = .GlobalEnv)
+    }
+  }
+
+
+  if ( "jsd" %in% distances){
+    if( exists("jsd_mat") ){
+      message("Jensen-Shannon divergence matrix found.")
+      if ( !identical(colnames(jsd_mat), sample_names(ps)) ){
+        message("Jensen-Shannon divergence matrix does not contain the
+                same sample names as this phyloseq object.
+                Recalculating the matrix.")
+        jsd_mat <- as.matrix(phyloseq::distance(ps, method = "jsd"))
+        assign("jsd_mat", jsd_mat, envir = .GlobalEnv)
+      }
+    } else {
+      message("Jensen-Shannon divergence matrix not found. Calculating it now.")
+      jsd_mat <- as.matrix(phyloseq::distance(ps, method = "jsd"))
+      assign("jsd_mat", jsd_mat, envir = .GlobalEnv)
+    }
+  }
+
+  if ( "jaccard" %in% distances){
+    if( exists("jaccard_mat") ){
+      message("Jaccard index matrix found.")
+      if ( !identical(colnames(jaccard_mat), sample_names(ps)) ){
+        message("Jaccard index matrix does not contain the
+                same sample names as this phyloseq object.
+                Recalculating the matrix.")
+        jaccard_mat <- as.matrix(phyloseq::distance(ps, method = "jaccard"))
+        assign("jaccard_mat", jsd_mat, envir = .GlobalEnv)
+      }
+    } else {
+      message("Jaccard index matrix not found. Calculating it now.")
+      jaccard_mat <- as.matrix(phyloseq::distance(ps, method = "jaccard", binary = TRUE))
+      assign("jaccard_mat", jsd_mat, envir = .GlobalEnv)
+    }
+  }
+
+
+  # sample data look-up table
+  sd <- data.frame(sample_data(ps))
+
+  # set-up a pairwise comparision between every sample
+  df <- data.frame(t(combn(as.character(sample_names(ps)),2)))
+  colnames(df) <- c("sample1", "sample2")
+
+  # filter comparisons if only doing intragroup comparisons
+  if (intragroup_only != FALSE){
+    if (intragroup_only == TRUE) {intragroup_only <- "Subject_ID"}
+
+    if( intragroup_only %in% sample_variables(ps) ){
+      message(paste0("Restricting comparsions to intragroup comparisons.
+                     Grouping variable: ", intragroup_only))
+      df$s1_SubID <- as.character(sd[match(df$sample1, rownames(sd)),intragroup_only])
+      df$s2_SubID <- as.character(sd[match(df$sample2, rownames(sd)),intragroup_only])
+      # trim to get only intra-subject samples:
+      df <- df[which(df$s1_SubID == df$s2_SubID),]
+      colnames(df)[3] <-"Subject_ID"
+      df[4] <- NULL
+    } else {
+      message(paste0("Factor ", intragroup_only, " not found in sample_variables(ps)."))
+    }
+  }
+
+
+  if (is.null(variables)){
+    message("You can specify sample_variables(ps) that you'd like to compare using 'variables = c('x', 'y', 'z')'.")
+  } else {
+
+    for( var in variables){
+
+      if (class(get_variable(ps, var)) == "numeric") {
+        s1_var <- paste0("s1_", var)
+        s2_var <- paste0("s2_", var)
+        Abs_Dist_var <- paste0("Abs_Dist_", var)
+        df[,s1_var] <- sd[match(df$sample1, rownames(sd)),var]
+        df[,s2_var] <- sd[match(df$sample2, rownames(sd)),var]
+        df[,Abs_Dist_var] <- as.numeric(abs(df[,s1_var] - df[,s2_var]))
+
+      } else {
+        s1_var <- paste0("s1_", var)
+        s2_var <- paste0("s2_", var)
+        same_var <- paste0("same_", var)
+        df[,s1_var] <- sd[match(df$sample1, rownames(sd)),var]
+        df[,s2_var] <- sd[match(df$sample2, rownames(sd)),var]
+        df[,same_var] <- ifelse(df[,s1_var] == df[,s2_var],"yes", "no")
+      }
+    }
+  }
+
+
+  # Add distances
+  for(dist in distances){
+    dist_var <- paste0(dist, "_mat")
+    df2 <- data.frame(cbind(match(df$sample1, rownames(get(dist_var))), match(df$sample2, colnames(get(dist_var)))))
+    for( i in 1:dim(df)[1]){
+      df[i , dist] <- get(dist_var)[df2[i,1], df2[i,2]]
+    }
+  }
+
+  return(df)
+
+}
+
+
+
